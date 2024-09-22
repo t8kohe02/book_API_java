@@ -1,15 +1,34 @@
 package fi.korpi.bookapi;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "books")
+@Table(name = "books", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"title", "author", "year"})
+})
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty(message = "Title can't be empty")
     private String title;
+
+    @NotEmpty(message = "Author can't be empty")
+    private String author;
+
+    @NotNull(message = "Year can't be empty")
+    private Integer year;
+
+    @Size(max = 255, message = "Publisher can be up to 255 characters long")
+    private String publisher;
+
+    @Size(max = 255, message = "Description can be up to 255 characters long")
+    private String description;
+
     public Long getId() {
         return id;
     }
@@ -28,11 +47,11 @@ public class Book {
     public void setAuthor(String author) {
         this.author = author;
     }
-    public int getPublicationYear() {
-        return publicationYear;
+    public int getYear() {
+        return year;
     }
-    public void setPublicationYear(int publicationYear) {
-        this.publicationYear = publicationYear;
+    public void setYear(int year) {
+        this.year = year;
     }
     public String getPublisher() {
         return publisher;
@@ -46,8 +65,5 @@ public class Book {
     public void setDescription(String description) {
         this.description = description;
     }
-    private String author;
-    private int publicationYear;
-    private String publisher;
-    private String description;
+
 }

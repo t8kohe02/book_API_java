@@ -20,6 +20,9 @@ public class BookService {
     }
 
     public Book saveBook(Book book) {
+        if (bookRepository.existsByTitleAndAuthorAndYear(book.getTitle(), book.getAuthor(), book.getYear())) {
+            throw new IllegalArgumentException("Duplicate entry.");
+        }
         return bookRepository.save(book);
     }
 
@@ -31,8 +34,8 @@ public class BookService {
         return bookRepository.findByAuthor(author);
     }
 
-    public List<Book> filterBooksByPublicationYear(int year) {
-        return bookRepository.findByPublicationYear(year);
+    public List<Book> filterBooksByYear(Integer year) {
+        return bookRepository.findByYear(year);
     }
 
     public List<Book> filterBooksByPublisher(String publisher) {
