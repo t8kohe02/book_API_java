@@ -19,7 +19,8 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping
-    public ResponseEntity<?> getAllBooks(@RequestParam(required = false) String author, @RequestParam(required = false) Integer year, @RequestParam(required = false) String publisher) {
+    public ResponseEntity<?> getAllBooks(@RequestParam(required = false) String author,
+            @RequestParam(required = false) Integer year, @RequestParam(required = false) String publisher) {
         if (author != null && author.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Author must not be an empty string");
         }
@@ -32,7 +33,7 @@ public class BookController {
             books = bookService.filterBooksByAuthor(author);
         } else if (year != null) {
             books = bookService.filterBooksByYear(year);
-        } else if (publisher != null){
+        } else if (publisher != null) {
             books = bookService.filterBooksByPublisher(publisher);
         } else {
             books = bookService.getAllBooks();
@@ -77,7 +78,7 @@ public class BookController {
             Long bookId = Long.parseLong(id);
 
             Optional<Book> book = bookService.getBookById(bookId);
-            if (book.isPresent()){
+            if (book.isPresent()) {
                 bookService.deleteBook(bookId);
                 return ResponseEntity.noContent().build();
             } else {
@@ -90,8 +91,8 @@ public class BookController {
 
     @GetMapping("/filter")
     public List<Book> filterBooks(@RequestParam(required = false) String author,
-                                  @RequestParam(required = false) Integer year,
-                                  @RequestParam(required = false) String publisher) {
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String publisher) {
         if (author != null) {
             return bookService.filterBooksByAuthor(author);
         } else if (year != null) {
