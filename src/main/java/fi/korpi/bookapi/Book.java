@@ -29,6 +29,25 @@ public class Book {
     @Size(max = 255, message = "Description can be up to 255 characters long")
     private String description;
 
+    public Book() {
+    }
+
+    public Book(String title, String author, Integer year, String publisher, String description) {
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.publisher = publisher;
+        this.description = description;
+    }
+
+    public Book(String title, String author, Integer year) {
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.publisher = null;
+        this.description = null;
+    }
+
     public Long getId() {
         return id;
     }

@@ -2,6 +2,7 @@ package fi.korpi.bookapi;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,12 +30,8 @@ public class BookController {
         }
 
         List<Book> books;
-        if (author != null) {
-            books = bookService.filterBooksByAuthor(author);
-        } else if (year != null) {
-            books = bookService.filterBooksByYear(year);
-        } else if (publisher != null) {
-            books = bookService.filterBooksByPublisher(publisher);
+        if (author != null || year != null || publisher != null) {
+            books = bookService.filterBooks(author, year, publisher);
         } else {
             books = bookService.getAllBooks();
         }
@@ -53,20 +50,30 @@ public class BookController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
             }
         } catch (NumberFormatException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
     }
 
     @PostMapping
     public ResponseEntity<?> addBook(@Valid @RequestBody Book book, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> {
+                errors.put(error.getField(), error.getDefaultMessage());
+            });
+            return ResponseEntity.badRequest().body(errors);
         }
+
         try {
             Book newBook = bookService.saveBook(book);
+
             Map<String, Object> response = new HashMap<>();
             response.put("id", newBook.getId());
+
             return ResponseEntity.ok(response);
+
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("A book with the same title, author, and year already exists.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -85,21 +92,7 @@ public class BookController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
             }
         } catch (NumberFormatException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
-    }
-
-    @GetMapping("/filter")
-    public List<Book> filterBooks(@RequestParam(required = false) String author,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) String publisher) {
-        if (author != null) {
-            return bookService.filterBooksByAuthor(author);
-        } else if (year != null) {
-            return bookService.filterBooksByYear(year);
-        } else if (publisher != null) {
-            return bookService.filterBooksByPublisher(publisher);
-        }
-        return bookService.getAllBooks();
     }
 }
